@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anime Hub - Home</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      header,a {
+        background-color: #333;
+        color: white;
+        padding: 15px;
+        text-align: center;
+      }
+      .anime-container {
+        margin: 20px;
+      }
+      .section-title {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+      }
+      .anime-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+      }
+      .anime-card {
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        width: 200px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s;
+      }
+      .anime-card:hover {
+        transform: scale(1.05);
+      }
+      .anime-img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+      }
+      .anime-info {
+        padding: 10px;
+        text-align: center;
+      }
+      .anime-title {
+        font-size: 1em;
+        font-weight: bold;
+        margin: 5px 0;
+      }
+      .anime-score {
+        color: #ff9800;
+        margin-bottom: 5px;
+      }
+      .anime-episodes {
+        font-size: 0.9em;
+        color: #555;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Anime Hub - Home</h1>
+      <h3><a href="search.html">Search</a></h3>
+    </header>
+
+    <div class="anime-container">
+      <div class="section">
+        <h2 class="section-title">Currently Airing Anime</h2>
+        <div id="airing-anime" class="anime-grid"></div>
+      </div>
+      <div class="section">
+        <h2 class="section-title">Trending Anime</h2>
+        <div id="trending-anime" class="anime-grid"></div>
+      </div>
+      <div class="section">
+        <h2 class="section-title">All-Time Top Anime</h2>
+        <div id="top-anime" class="anime-grid"></div>
+      </div>
+    </div>
+
+    <script>
+      const airingAnimeUrl = 'https://api.jikan.moe/v4/seasons/now';
+      const trendingAnimeUrl = 'https://api.jikan.moe/v4/top/anime?filter=bypopularity';
+      const topAnimeUrl = 'https://api.jikan.moe/v4/top/anime';
+
+      // Fetch and display currently airing anime
+      const fetchAiringAnime = async () => {
+        try {
+          const response = await fetch(airingAnimeUrl);
+          const data = await response.json();
+          displayAnime(data.data, 'airing-anime');
+        } catch (error) {
+          console.error('Error fetching airing anime:', error);
+        }
+      };
+
+      // Fetch and display trending anime
+      const fetchTrendingAnime = async () => {
+        try {
+          const response = await fetch(trendingAnimeUrl);
+          const data = await response.json();
+          displayAnime(data.data, 'trending-anime');
+        } catch (error) {
+          console.error('Error fetching trending anime:', error);
+        }
+      };
+
+      // Fetch and display all-time top anime
+      const fetchTopAnime = async () => {
+        try {
+          const response = await fetch(topAnimeUrl);
+          const data = await response.json();
+          displayAnime(data.data, 'top-anime');
+        } catch (error) {
+          console.error('Error fetching top anime:', error);
+        }
+      };
+
+      // Function to display anime in a section
+      const displayAnime = (animeList, elementId) => {
+        const container = document.getElementById(elementId);
+        container.innerHTML = ''; // Clear any existing content
+        animeList.slice(0, 10).forEach(anime => {
+          const animeCard = `
+            <div class="anime-card">
+              <a href="details.html?mal_id=${anime.mal_id}">
+                <img class="anime-img" src="${anime.images.jpg.large_image_url}" alt="${anime.title}">
+              </a>
+              <div class="anime-info">
+                <div class="anime-title">${anime.title}</div>
+                <div class="anime-score">Score: ${anime.score || 'N/A'}</div>
+                <div class="anime-episodes">Episodes: ${anime.episodes || 'N/A'}</div>
+              </div>
+            </div>
+          `;
+          container.innerHTML += animeCard;
+        });
+      };
+
+      // Fetch data for all sections on page load
+      fetchAiringAnime();
+      fetchTrendingAnime();
+      fetchTopAnime();
+    </script>
+  </body>
+</html>

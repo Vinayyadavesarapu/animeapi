@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anime Details</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        background-color: #333;
+        color: white;
+        padding: 15px;
+        text-align: center;
+      }
+      .anime-details-container {
+        max-width: 800px;
+        margin: 20px auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+      .anime-image {
+        width: 100%;
+        height: auto;
+      }
+      .anime-info {
+        margin-top: 20px;
+      }
+      .anime-info h2 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+      }
+      .anime-info p {
+        margin-bottom: 10px;
+        font-size: 1.1em;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Anime Details</h1>
+    </header>
+
+    <div class="anime-details-container" id="anime-details">
+      <!-- Anime details will be inserted here -->
+    </div>
+
+    <script>
+      // Get mal_id from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const malId = urlParams.get('mal_id');
+
+      // Fetch anime details based on mal_id
+      const fetchAnimeDetails = async (id) => {
+        const animeUrl = `https://api.jikan.moe/v4/anime/${id}`;
+        try {
+          const response = await fetch(animeUrl);
+          const data = await response.json();
+          displayAnimeDetails(data.data);
+        } catch (error) {
+          console.error('Error fetching anime details:', error);
+        }
+      };
+
+      // Display anime details on the page
+      const displayAnimeDetails = (anime) => {
+        const animeDetailsContainer = document.getElementById('anime-details');
+        animeDetailsContainer.innerHTML = `
+          <img class="anime-image" src="${anime.images.jpg.large_image_url}" alt="${anime.title}">
+          <div class="anime-info">
+            <h2>${anime.title}</h2>
+            <p><strong>Score:</strong> ${anime.score || 'N/A'}</p>
+            <p><strong>Episodes:</strong> ${anime.episodes || 'N/A'}</p>
+            <p><strong>Status:</strong> ${anime.status}</p>
+            <p><strong>Aired:</strong> ${anime.aired.string}</p>
+            <p><strong>Duration:</strong> ${anime.duration}</p>
+            <p><strong>Synopsis:</strong> ${anime.synopsis || 'No synopsis available.'}</p>
+            <a href="${anime.trailer.url}" target="_blank">Watch Trailer</a>
+          </div>
+        `;
+      };
+
+      // Fetch the anime details when the page loads
+      if (malId) {
+        fetchAnimeDetails(malId);
+      } else {
+        document.getElementById('anime-details').innerHTML = '<p>Anime not found!</p>';
+      }
+    </script>
+  </body>
+</html>

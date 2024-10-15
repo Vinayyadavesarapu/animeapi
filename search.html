@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anime Hub - Search</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        background-color: #333;
+        color: white;
+        padding: 15px;
+        text-align: center;
+      }
+      .search-container {
+        display: flex;
+        justify-content: center;
+        margin: 20px;
+      }
+      .search-box {
+        display: flex;
+        gap: 10px;
+      }
+      .search-box input[type="text"],
+      .search-box select {
+        padding: 10px;
+        font-size: 1em;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+      .search-box button {
+        padding: 10px 20px;
+        font-size: 1em;
+        background-color: #333;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .search-box button:hover {
+        background-color: #555;
+      }
+      .anime-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+        margin: 20px;
+      }
+      .anime-card {
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        width: 200px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s;
+      }
+      .anime-card:hover {
+        transform: scale(1.05);
+      }
+      .anime-img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+      }
+      .anime-info {
+        padding: 10px;
+        text-align: center;
+      }
+      .anime-title {
+        font-size: 1em;
+        font-weight: bold;
+        margin: 5px 0;
+      }
+      .anime-score {
+        color: #ff9800;
+        margin-bottom: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Anime Hub - Search</h1>
+    </header>
+
+    <!-- Search Box with Filters -->
+    <div class="search-container">
+      <div class="search-box">
+        <input type="text" id="search-query" placeholder="Search for anime..." />
+        <select id="year-filter">
+          <option value="">All Years</option>
+          <!-- Add options dynamically from JavaScript or manually -->
+        </select>
+        <button onclick="searchAnime()">Search</button>
+      </div>
+    </div>
+
+    <!-- Anime Container to Display Search Results -->
+    <div class="anime-container" id="search-results"></div>
+
+    <script>
+      // API base URL
+      const searchApiUrl = 'https://api.jikan.moe/v4/anime?q=';
+
+      // Dynamically fill the year filter (e.g., from 1990 to the current year)
+      const yearSelect = document.getElementById('year-filter');
+      const currentYear = new Date().getFullYear();
+      for (let year = currentYear; year >= 1990; year--) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
+        yearSelect.appendChild(option);
+      }
+
+      // Function to search anime based on search query and year filter
+      const searchAnime = async () => {
+        const query = document.getElementById('search-query').value.trim();
+        const year = document.getElementById('year-filter').value;
+
+        if (!query) {
+          alert('Please enter a search term');
+          return;
+        }
+
+        // Construct API URL with search query and optional year
+        let url = `${searchApiUrl}${query}`;
+        if (year) {
+          url += `&start_date=${year}-01-01&end_date=${year}-12-31`;
+        }
+
+        try {
+          const response = await fetch(url);
+          const data = await response.json();
+          displaySearchResults(data.data);
+        } catch (error) {
+          console.error('Error fetching anime:', error);
+        }
+      };
+
+      // Function to display the search results
+      const displaySearchResults = (animeList) => {
+        const resultsContainer = document.getElementById('search-results');
+        resultsContainer.innerHTML = ''; // Clear previous results
+
+        if (animeList.length === 0) {
+          resultsContainer.innerHTML = '<p>No results found.</p>';
+          return;
+        }
+
+        animeList.forEach(anime => {
+          const animeCard = `
+            <div class="anime-card">
+              <a href="anime_details.html?mal_id=${anime.mal_id}">
+                <img class="anime-img" src="${anime.images.jpg.large_image_url}" alt="${anime.title}">
+                <div class="anime-info">
+                  <div class="anime-title">${anime.title}</div>
+                  <div class="anime-score">Score: ${anime.score || 'N/A'}</div>
+                  <div class="anime-episodes">Episodes: ${anime.episodes || 'N/A'}</div>
+                </div>
+              </a>
+            </div>
+          `;
+          resultsContainer.innerHTML += animeCard;
+        });
+      };
+    </script>
+  </body>
+</html>
